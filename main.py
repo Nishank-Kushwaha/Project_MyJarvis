@@ -19,6 +19,7 @@ dotenv.load_dotenv()
 gui = JarvisGUI()
 recognizer = sr.Recognizer()
 engine = pyttsx3.init()
+running = True
 
 news_apikey=os.getenv("NEWS_API_KEY")
 
@@ -85,6 +86,8 @@ def aiProcess(command):
 
 # process function for commmands
 def processCommand(c):
+    
+    global running 
     c = c.lower()
 
     if "open google" in c:
@@ -190,9 +193,13 @@ def processCommand(c):
     elif "exit" in c or "stop" in c:
         speak("Shutting down Jarvis. Have a nice day.")
         gui.update_status("Shutting down...")
-        gui.root.quit()
-        gui.root.destroy()
-        os._exit(0)
+
+        running = False  
+
+        def close_app():
+            gui.root.destroy() 
+
+        gui.root.after(0, close_app)
 
     else:
         # Let Gemini handle the request
@@ -200,9 +207,12 @@ def processCommand(c):
         speak(output) 
 
 def run_jarvis():
+    global running
     wish_me()
-
     while True:
+        if not running:
+            break
+
         try:
             with sr.Microphone() as source:
                 print("Listening for wake word...")
