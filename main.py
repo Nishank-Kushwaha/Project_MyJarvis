@@ -126,7 +126,7 @@ def processCommand(c):
 
     elif "news" in c:
         speak("Fetching news...")
-        gui.update_status("Processing...", state="processing") 
+        gui.update_status("Processing ...", state="processing") 
 
         try:
             url = f"https://newsdata.io/api/1/latest?apikey={news_apikey}&country=in&language=en"
@@ -151,7 +151,7 @@ def processCommand(c):
             print(e)
     
     elif "joke" in c:
-        gui.update_status("Active ...", state="active")
+        gui.update_status("Processing ...", state="processing")
         joke = pyjokes.get_joke()
         speak(joke)
 
@@ -195,7 +195,7 @@ def processCommand(c):
 
     elif "exit" in c or "stop" in c:
         speak("Shutting down Jarvis. Have a nice day.")
-        gui.update_status("Shutting down...",state="shutdown")
+        gui.update_status("Shutting down ...",state="shutdown")
 
         running = False  
 
