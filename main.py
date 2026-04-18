@@ -47,7 +47,7 @@ def speak_old(text):
 
 # Using gtts module
 def speak(text):
-    gui.update_status("Speaking...")
+    gui.update_status("Speaking ...",state="speaking")
 
     tts = gTTS(text)
     tts.save('temp.mp3') 
@@ -68,7 +68,7 @@ def speak(text):
     pygame.mixer.music.unload()
     os.remove("temp.mp3") 
 
-    gui.update_status("Idle")
+    gui.update_status("Idle",state="idle")
 
 # ai process using gemini
 def aiProcess(command):
@@ -113,8 +113,8 @@ def processCommand(c):
     elif "play song" in c or "play music on youtube" in c:
         speak("Which song should I play?")
         with sr.Microphone() as source:
-            print("Search Active...")
-            gui.update_status("Search Active...")
+            print("Listening ...")
+            gui.update_status("Listening ...",state="listening")
             recognizer.adjust_for_ambient_noise(source, duration=1)
             audio = recognizer.listen(source)
 
@@ -126,6 +126,8 @@ def processCommand(c):
 
     elif "news" in c:
         speak("Fetching news...")
+        gui.update_status("Processing...", state="processing") 
+
         try:
             url = f"https://newsdata.io/api/1/latest?apikey={news_apikey}&country=in&language=en"
             response = requests.get(url)
@@ -149,6 +151,7 @@ def processCommand(c):
             print(e)
     
     elif "joke" in c:
+        gui.update_status("Active ...", state="active")
         joke = pyjokes.get_joke()
         speak(joke)
 
@@ -164,8 +167,8 @@ def processCommand(c):
         speak("What should I search?")
 
         with sr.Microphone() as source:
-            print("Search Active...")
-            gui.update_status("Search Active...")
+            print("Listening ...")
+            gui.update_status("Listening ...",state="listening")
             recognizer.adjust_for_ambient_noise(source, duration=1)
             audio = recognizer.listen(source)
 
@@ -180,8 +183,8 @@ def processCommand(c):
         speak("What should I search?")
 
         with sr.Microphone() as source:
-            print("Search Active...")
-            gui.update_status("Search Active...")
+            print("Listening ...")
+            gui.update_status("Listening ...",state="listening")
             recognizer.adjust_for_ambient_noise(source, duration=1)
             audio = recognizer.listen(source)
 
@@ -192,7 +195,7 @@ def processCommand(c):
 
     elif "exit" in c or "stop" in c:
         speak("Shutting down Jarvis. Have a nice day.")
-        gui.update_status("Shutting down...")
+        gui.update_status("Shutting down...",state="shutdown")
 
         running = False  
 
@@ -203,6 +206,7 @@ def processCommand(c):
 
     else:
         # Let Gemini handle the request
+        gui.update_status("Processing ...", state="processing")
         output = aiProcess(c)
         speak(output) 
 
@@ -215,8 +219,8 @@ def run_jarvis():
 
         try:
             with sr.Microphone() as source:
-                print("Listening for wake word...")
-                gui.update_status("Listening for wake word...")
+                print("Listening for wake word ...")
+                gui.update_status("Listening for wake word ...", state="listening")
                 recognizer.adjust_for_ambient_noise(source, duration=1)
                 audio = recognizer.listen(source)
 
@@ -224,11 +228,12 @@ def run_jarvis():
             print("You said:", word)
 
             if "jarvis" in word.lower():
+                gui.update_status("Active ...", state="active")
                 speak("Yes")
 
                 with sr.Microphone() as source:
-                    print("Active...")
-                    gui.update_status("Active...")
+                    print("Active ...")
+                    gui.update_status("Active ...", state="active")
                     recognizer.adjust_for_ambient_noise(source, duration=1)
                     audio = recognizer.listen(source)
 

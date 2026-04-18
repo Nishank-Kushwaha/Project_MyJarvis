@@ -47,7 +47,7 @@ class JarvisGUI:
             "speaking":   "#ff6633",
             "processing": "#ffaa00",
             "active":     "#ff4488",
-            "error":      "#ff2222",
+            "shutdown":   "#ff2222",
         }
         self.current_color = self.state_colors["idle"]
 
