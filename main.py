@@ -11,14 +11,19 @@ import datetime
 import wikipedia
 import pyjokes
 import pywhatkit
-
+import threading
+from gui import JarvisGUI
 
 dotenv.load_dotenv()
 
+gui = JarvisGUI()
 recognizer = sr.Recognizer()
 engine = pyttsx3.init()
+
 news_apikey=os.getenv("NEWS_API_KEY")
+
 gemini_apikey=os.getenv("GEMINI_API_KEY")
+client = genai.Client(api_key=gemini_apikey)
 
 # Greeting
 def wish_me():
@@ -41,6 +46,8 @@ def speak_old(text):
 
 # Using gtts module
 def speak(text):
+    gui.update_status("Speaking...")
+
     tts = gTTS(text)
     tts.save('temp.mp3') 
 
@@ -60,11 +67,12 @@ def speak(text):
     pygame.mixer.music.unload()
     os.remove("temp.mp3") 
 
+    gui.update_status("Idle")
+
 # ai process using gemini
 def aiProcess(command):
     # -------------------- Using google gemini ---------------
-    client = genai.Client(api_key=gemini_apikey)
-
+   
     response = client.models.generate_content(
         model="gemini-3-flash-preview",
         contents=[
@@ -103,6 +111,7 @@ def processCommand(c):
         speak("Which song should I play?")
         with sr.Microphone() as source:
             print("Search Active...")
+            gui.update_status("Search Active...")
             recognizer.adjust_for_ambient_noise(source, duration=1)
             audio = recognizer.listen(source)
 
@@ -153,6 +162,7 @@ def processCommand(c):
 
         with sr.Microphone() as source:
             print("Search Active...")
+            gui.update_status("Search Active...")
             recognizer.adjust_for_ambient_noise(source, duration=1)
             audio = recognizer.listen(source)
 
@@ -168,6 +178,7 @@ def processCommand(c):
 
         with sr.Microphone() as source:
             print("Search Active...")
+            gui.update_status("Search Active...")
             recognizer.adjust_for_ambient_noise(source, duration=1)
             audio = recognizer.listen(source)
 
@@ -178,20 +189,24 @@ def processCommand(c):
 
     elif "exit" in c or "stop" in c:
         speak("Shutting down Jarvis. Have a nice day.")
-        exit()
+        gui.update_status("Shutting down...")
+        gui.root.quit()
+        gui.root.destroy()
+        os._exit(0)
 
     else:
         # Let Gemini handle the request
         output = aiProcess(c)
         speak(output) 
 
-if __name__ == "__main__":
+def run_jarvis():
     wish_me()
 
     while True:
         try:
             with sr.Microphone() as source:
                 print("Listening for wake word...")
+                gui.update_status("Listening for wake word...")
                 recognizer.adjust_for_ambient_noise(source, duration=1)
                 audio = recognizer.listen(source)
 
@@ -202,7 +217,8 @@ if __name__ == "__main__":
                 speak("Yes")
 
                 with sr.Microphone() as source:
-                    print("Jarvis Active...")
+                    print("Active...")
+                    gui.update_status("Active...")
                     recognizer.adjust_for_ambient_noise(source, duration=1)
                     audio = recognizer.listen(source)
 
@@ -219,3 +235,10 @@ if __name__ == "__main__":
 
         except Exception as e:
             print(f"Error: {e}")
+
+
+# Run in thread
+threading.Thread(target=run_jarvis, daemon=True).start()
+
+# Run GUI
+gui.run()
