@@ -1,5 +1,6 @@
 import tkinter as tk
 import math
+import psutil
 
 
 class JarvisGUI:
@@ -96,27 +97,30 @@ class JarvisGUI:
             dash=(3, 8), fill=""
         )
 
-        # Footer status bar
+        # Footer status bar (static labels)
         self.canvas.create_text(
             cx - 180, self.sh - 20,
-            text="SYS: ONLINE",
+            text="BATTERY: --",
             fill="#00d4ff",
             font=("Courier", 10),
-            anchor="center"
+            anchor="center",
+            tags="footer_bat"
         )
         self.canvas.create_text(
             cx, self.sh - 20,
-            text="AI: READY",
+            text="CPU: --",
             fill="#00d4ff",
             font=("Courier", 10),
-            anchor="center"
+            anchor="center",
+            tags="footer_cpu"
         )
         self.canvas.create_text(
             cx + 180, self.sh - 20,
-            text="MIC: STANDBY",
+            text="RAM: --",
             fill="#00d4ff",
             font=("Courier", 10),
-            anchor="center"
+            anchor="center",
+            tags="footer_ram"
         )
 
     def _draw_dynamic(self):
@@ -188,6 +192,54 @@ class JarvisGUI:
         self._draw_dynamic()
         self.root.after(33, self._animate)  # ~30 fps
 
+    def _update_footer(self):
+        # Battery
+        battery = psutil.sensors_battery()
+        if battery:
+            plug = "⚡" if battery.power_plugged else "🔋"
+            bat_text = f"BAT: {plug}{int(battery.percent)}%"
+            bat_color = "#ff2222" if battery.percent < 20 and not battery.power_plugged else "#00d4ff"
+        else:
+            bat_text = "BAT: N/A"
+            bat_color = "#00d4ff"
+
+        # CPU
+        cpu = psutil.cpu_percent()
+        cpu_color = "#ff2222" if cpu > 80 else "#ffaa00" if cpu > 50 else "#00d4ff"
+        cpu_text = f"CPU: {cpu}%"
+
+        # RAM
+        ram = psutil.virtual_memory()
+        ram_color = "#ff2222" if ram.percent > 80 else "#ffaa00" if ram.percent > 50 else "#00d4ff"
+        ram_text = f"RAM: {ram.percent}%"
+
+        # Update canvas text
+        self.canvas.delete("footer_bat")
+        self.canvas.delete("footer_cpu")
+        self.canvas.delete("footer_ram")
+
+        self.canvas.create_text(
+            self.cx - 180, self.sh - 20,
+            text=bat_text, fill=bat_color,
+            font=("Courier", 10), anchor="center",
+            tags="footer_bat"
+        )
+        self.canvas.create_text(
+            self.cx, self.sh - 20,
+            text=cpu_text, fill=cpu_color,
+            font=("Courier", 10), anchor="center",
+            tags="footer_cpu"
+        )
+        self.canvas.create_text(
+            self.cx + 180, self.sh - 20,
+            text=ram_text, fill=ram_color,
+            font=("Courier", 10), anchor="center",
+            tags="footer_ram"
+        )
+
+        # Refresh every 3 seconds
+        self.root.after(3000, self._update_footer)
+
     def update_status(self, text, state="idle"):
         def update():
             self.current_color = self.state_colors.get(state, "#00d4ff")
@@ -206,4 +258,5 @@ class JarvisGUI:
     def run(self):
         # Draw initial status
         self.update_status("IDLE", "idle")
+        self._update_footer()
         self.root.mainloop()
