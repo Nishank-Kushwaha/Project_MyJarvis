@@ -36,6 +36,9 @@ class JarvisAssistant:
 
         self.speech = SpeechEngine(gui=self.gui)
         self.router = CommandRouter(assistant=self)
+        
+        from Features import reminders as reminder_module
+        reminder_module.init(self.speak)
 
     # ------------------------------------------------------------------ #
     #  Public API                                                          #

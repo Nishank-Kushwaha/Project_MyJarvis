@@ -108,3 +108,31 @@ class ReminderManager:
                     reminder["active"] = False
                 break
             time.sleep(10)
+
+# ------------------------------------------------------------------ #
+#  Module-level convenience API (used by commands.py)                #
+# ------------------------------------------------------------------ #
+
+_manager: ReminderManager | None = None
+
+def _get_manager() -> ReminderManager:
+    """Return the singleton ReminderManager, raising if not initialised."""
+    if _manager is None:
+        raise RuntimeError(
+            "Call reminders.init(speak_func) before using reminder functions."
+        )
+    return _manager
+
+def init(speak_func: Callable[[str], None]) -> None:
+    """Initialise the module-level manager. Call once at startup."""
+    global _manager
+    _manager = ReminderManager(speak_func)
+
+def set_reminder(message: str, remind_time: datetime.datetime, speak_func=None) -> dict:
+    return _get_manager().add(message, remind_time)
+
+def list_reminders() -> list[dict]:
+    return _get_manager().list_active()
+
+def cancel_reminder(index: int) -> bool:
+    return _get_manager().cancel(index)
