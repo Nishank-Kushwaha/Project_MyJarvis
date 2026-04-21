@@ -12,14 +12,14 @@ import wikipedia
 import pyjokes
 import pywhatkit
 import threading
-from gui import JarvisGUI
+from GUI.app import JarvisGUI
 import pyperclip
 import pyautogui
-from snip import take_snip
+from GUI.snip import take_snip
 from PIL import ImageGrab
 from pycaw.pycaw import AudioUtilities
 from comtypes import CLSCTX_ALL
-from reminders import set_reminder, list_reminders, cancel_reminder
+from Features.reminders import set_reminder, list_reminders, cancel_reminder
 import re
 
 dotenv.load_dotenv()
@@ -325,7 +325,7 @@ def processCommand(c):
 
         if region:
             x1, y1, x2, y2 = region
-            folder = "screenshots"
+            folder = "Screenshots"
             os.makedirs(folder, exist_ok=True)
             timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
             filename = f"{folder}/region_{timestamp}.png"
@@ -340,8 +340,8 @@ def processCommand(c):
     elif "take screenshot" in c:
         gui.update_status("Processing ...", state="processing")
 
-        # Create screenshots folder if it doesn't exist
-        folder = "screenshots"
+        # Create Screenshots folder if it doesn't exist
+        folder = "Screenshots"
         os.makedirs(folder, exist_ok=True)
 
         # Filename with timestamp
