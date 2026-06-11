@@ -1,11 +1,13 @@
 import tkinter as tk
 import math
 import psutil
-
+import ctypes
 
 class JarvisGUI:
 
     def __init__(self):
+        ctypes.windll.shcore.SetProcessDpiAwareness(2)
+
         self.root = tk.Tk()
         self.root.title("J.A.R.V.I.S")
         self.root.configure(bg="#000000")
