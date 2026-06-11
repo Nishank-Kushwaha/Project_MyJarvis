@@ -41,3 +41,8 @@ temp.mp3
 build/
 dist/
 *.egg-info/
+
+# ------------------------------
+# Screenshots
+# ------------------------------
+Screenshots/
